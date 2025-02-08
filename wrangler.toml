@@ -5,3 +5,7 @@ workers_dev = true
 main = "worker.js"
 compatibility_date = "2020-12-17"
 node_compat = true
+
+# wrangler.toml (wrangler v3.88.0^)
+[observability.logs]
+enabled = true

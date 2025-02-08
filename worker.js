@@ -34,6 +34,12 @@ export default {
       },
     });
 
+    // Main compile
+    app.on("push", async (context) => {
+      console.log("console push event received");
+      context.log.info("context push event received");
+    });
+
     app.webhooks.on("issues.opened", async ({ octokit, payload }) => {
       await octokit.request(
         "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
