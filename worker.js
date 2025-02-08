@@ -35,7 +35,7 @@ export default {
     });
 
     // Main compile
-    app.on("push", async (context) => {
+    app.webhooks.on("push", async (context) => {
       console.log("console push event received");
       context.log.info("context push event received");
     });
