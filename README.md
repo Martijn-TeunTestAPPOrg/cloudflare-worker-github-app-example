@@ -1,75 +1,76 @@
-# cloudflare-worker-github-app-example
+# Content Compiler GitHub App
 
-> A Cloudflare Worker + GitHub App Example
+The app listens to specific GitHub events and triggers pre-compilation and main compilation processes accordingly.
 
-The [worker.js](worker.js) file is a [Cloudflare Worker](https://workers.cloudflare.com/) which is continuously deployed using GitHub Actions (see [.github/workflows/deploy.yml](.github/workflows/deploy.yml)).
+## Features
+- **Pre-Compile**: Triggered on pull request events (`opened`, `reopened`, `synchronize`) targeting the `content` branch.
+- **Main Compile**: Triggered on push events to the `content` branch.
+- **Validation**: Ensures that only allowed files are changed and checks for unmerged files in pull requests.
+- **Reporting**: Generates and commits reports to the repository.
 
-The worker does 2 things
+## Getting Started
+### Prerequisites
+- Node.js
+- npm
+- A GitHub App with the necessary permissions and events configured
 
-1. `GET` requests: respond with an HTML website with links and a live counter of installations.
-2. `POST` requests: handle webhook request from GitHub
+### Installation
+1. Clone the repository:
 
-⚠️ The requests from GitHub are currently not verified using the signature, because [the code is currently using Node's crypto package](https://github.com/octokit/webhooks.js/blob/0e03e470034ac769a28ed37acb524b94e304bf96/src/sign/index.ts#L1). This will be resolved once I create a universal webhook verification package, similar to [`universal-github-app-jwt`](https://github.com/gr2m/universal-github-app-jwt/#readme). For the time being, you could define a secret path that that webhook requests by GitHub are sent to, in order to prevent anyone who knows your workers URL from sending fake webhook requests. See [#1](https://github.com/gr2m/cloudflare-worker-github-app-example/issues/1)
+2. Install dependencies:
+    ```sh
+    npm install
+    ```
 
-![screen recording of GitHub app creating a comment on a new GitHub issue](assets/hello-there-cloudflare-worker.gif)
+3. Create a `.env` file based on the .env.example file and fill in the required values:
+    ```sh
+    cp .env.example .env
+    ```
 
-## Step-by-step instructions to create your own
+### Building and Running
 
-Note that you require access to the new GitHub Actions for the automated deployment to work.
+1. Build the project:
+    ```sh
+    npm run build
+    ```
 
-1. Fork this repository
-1. [Create a GitHub App](https://developer.github.com/apps/building-github-apps/creating-a-github-app/)
-1. [Create a Cloudflare account](https://dash.cloudflare.com/) (it's free!) if you don't have one yet.
-1. Install the `wrangler` CLI and login with your account
+2. Start the app:
+    ```sh
+    npm start
+    ```
 
-   ```
-   npm install --global wrangler
-   wrangler login
-   ```
+## Configuration
 
-1. Edit the `wrangler.toml` file, change the value for `account_id` to your own ([select your account](https://dash.cloudflare.com/), then find your Account ID at the bottom of the side bar)
-1. Add the following secrets to your Cloudflare worker:
+The app is configured using environment variables. The following variables need to be set in the `.env` file:
 
-   - `APP_ID`: In your GitHub App registration's settings page, find `App ID`
+- `WEBHOOK_PROXY_URL`
+- `APP_ID`
+- `PRIVATE_KEY`
+- `WEBHOOK_SECRET`
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
+- `INSTALLATION_ID`
+- `GITHUB_APP_NAME=`
+- `GITHUB_APP_EMAIL=`
+- `CLONE_REPO_FOLDER=`
+- `TEMP_STORAGE_FOLDER=`
 
-     ```
-     wrangler secret put APP_ID
-     ```
+## Usage
+### Pre-Compile
+The pre-compile process is triggered by pull request events (`opened`, `reopened`, `synchronize`) targeting the content branch. It performs the following steps:
 
-   - `WEBHOOK_SECRET`: In your GitHub App registration's settings page, find `Webhook secret`
+1. Removes temporary folders.
+2. Clones the repository.
+3. Checks for changed files and validates them.
+4. Compiles the content using a Python script.
+5. Posts a review with the compiled content.
 
-     ```
-     wrangler secret put WEBHOOK_SECRET
-     ```
+### Main Compile
 
-   - `PRIVATE_KEY`: Generate a private key (see the button at the bottom of your GitHub App registration's settings page).
+The main compile process is triggered by push events to the content branch. It performs the following steps:
 
-     1. You will be prompted to download a `*.pem` file. After download, rename it to `private-key.pem`.
-     1. Convert the key from the `PKCS#1` format to `PKCS#8` (The WebCrypto API only supports `PKCS#8`):
-
-        ```
-        openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.pem
-        ```
-
-     1. Write the contents of the new file into the secret `PRIVATE_KEY`:
-
-        ```
-        cat private-key-pkcs8.pem | wrangler secret put PRIVATE_KEY
-        ```
-
-1. Add the following secret in your fork's repository settings:
-   - `CF_API_TOKEN`: [Create a new token](https://dash.cloudflare.com/profile/api-tokens), use the "Edit Cloudflare Workers" template
-
-That should be it. The `worker.js` file will now be continously deployed to Cloudflare each time there is a commit to master.
-
-## See also
-
-- [Cloudflare Worker GitHub OAuth Example](https://github.com/gr2m/cloudflare-worker-github-oauth-login/#readme)
-
-## Credits
-
-The OAuth App Avatar and this repository's social preview are using [@cameronmcefee](https://github.com/cameronmcefee)'s [cloud](https://octodex.github.com/cloud/) Octodex graphic :octocat:💖
-
-## License
-
-[ISC](LICENSE)
+1. Removes temporary folders.
+2. Clones the repository.
+3. Compiles the content.
+4. Copies reports to the storage folder.
+5. Commits and pushes the compiled files and reports to the `staging` branch.

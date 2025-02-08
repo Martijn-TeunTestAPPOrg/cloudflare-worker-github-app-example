@@ -8,7 +8,8 @@
   "license": "ISC",
   "repository": "github:gr2m/cloudflare-worker-github-app-example",
   "dependencies": {
-    "@octokit/app": "^10.0.2"
+    "@octokit/app": "^10.0.2",
+    "simple-git": "^3.27.0"
   },
   "release": {
     "branches": [
