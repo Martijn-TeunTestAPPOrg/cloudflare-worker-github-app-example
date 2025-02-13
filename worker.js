@@ -25,18 +25,18 @@ export default {
 
 		// Main compile
 		app.webhooks.on("push", async (context) => {
-			console.log("console push event received");
+			console.log("push event received");
 
 			startMainCompile(context);
 		});
 
 		// Precompile
 		app.webhooks.on(["pull_request.opened", "pull_request.reopened", "pull_request.synchronize"], async (context) => {
-			console.log("console pull_request event received");
+			console.log("pull_request event received");
 
 			// Only proceed if the target branch is 'content'
 			if (context.payload.pull_request.base.ref === 'content') {
-				await startPreCompile(context);
+				await startPreCompile(app, context);
 			}
 		});
 

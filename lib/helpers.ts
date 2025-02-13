@@ -48,7 +48,7 @@ export const getInstallationToken = async (context: WebhookEvent<any>) => {
 }
 
 // Helper function to clear temp storage
-export function clearTempStorage(octokit: App, cloneTargetDirectory: string, tempStorageDirectory: string, context: WebhookEvent<any>) {
+export function clearTempStorage(octokit: App, cloneTargetDirectory: string, tempStorageDirectory: string) {
     try {
         // Remove the cloned_repo folder if it exists
         if (fs.existsSync(cloneTargetDirectory)) {
