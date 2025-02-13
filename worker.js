@@ -1,7 +1,7 @@
 import { App } from "@octokit/app";
 import { verifyWebhookSignature } from "./lib/verify.js";
+import { startMainCompile } from "./lib/preCompile.ts";
 import { startPreCompile } from "./lib/preCompile.ts";
-import { getInstallationToken } from "./lib/helpers.ts";
 
 
 export default {
@@ -27,21 +27,31 @@ export default {
 		app.webhooks.on("push", async (context) => {
 			console.log("console push event received");
 
-			getInstallationToken(context);
-			startPreCompile(context);
+			startMainCompile(context);
 		});
 
-		app.webhooks.on("issues.opened", async ({ octokit, payload }) => {
-		await octokit.request(
-			"POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
-			{
-			owner: payload.repository.owner.login,
-			repo: payload.repository.name,
-			issue_number: payload.issue.number,
-			body:
-				"Hello there from [Cloudflare Workers](https://github.com/gr2m/cloudflare-worker-github-app-example/#readme)",
+		// Precompile
+		app.webhooks.on(["pull_request.opened", "pull_request.reopened", "pull_request.synchronize"], async (context) => {
+			console.log("console pull_request event received");
+
+			// Only proceed if the target branch is 'content'
+			if (context.payload.pull_request.base.ref === 'content') {
+				await startPreCompile(context);
 			}
-		);
+		});
+
+		// Example of a webhook handler
+		app.webhooks.on("issues.opened", async ({ octokit, payload }) => {
+			await octokit.request(
+				"POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
+				{
+				owner: payload.repository.owner.login,
+				repo: payload.repository.name,
+				issue_number: payload.issue.number,
+				body:
+					"Hello there from [Cloudflare Workers](https://github.com/gr2m/cloudflare-worker-github-app-example/#readme)",
+				}
+			);
 		});
 
 		if (request.method === "GET") {

@@ -43,19 +43,7 @@ export function getDefaultConfig(context: WebhookEvent<any>) {
 }
 
 // Helper function to get the installation token
-export const getInstallationToken = async (app: App, context: WebhookEvent<any>) => {
-    // const octokit = await app.getInstallationOctokit(context.payload.installation.id);
-    // const installationId = context.payload.installation?.id;
-    // if (!installationId) {
-    //     throw new Error('No installation ID found');
-    // }
-    // const { token } = await octokit.auth({
-    //     type: 'installation',
-    //     installationId
-    // }) as { token: string };
-
-    console.log(context.payload.installation.id);
-
+export const getInstallationToken = async (context: WebhookEvent<any>) => {
     return context.payload.installation.id;
 }
 
