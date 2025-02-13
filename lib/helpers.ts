@@ -1,12 +1,12 @@
 import path from "path";
 import * as fs from "fs";
 import { SimpleGit } from "simple-git";
-import { WebhookEvent } from "@octokit/webhooks";
+import { EmitterWebhookEvent  } from "@octokit/webhooks";
 import { App } from "@octokit/app";
 
 
 // Helper function to check if the commit is from our app
-export function isAppCommit(context: WebhookEvent<any>) {
+export function isAppCommit(context: EmitterWebhookEvent <any>) {
     const sender = context.payload.sender;
     const commits = context.payload.commits || [];
     
@@ -16,7 +16,7 @@ export function isAppCommit(context: WebhookEvent<any>) {
 }
 
 // Helper function to get default configuration values
-export function getDefaultConfig(context: WebhookEvent<any>) {
+export function getDefaultConfig(context: EmitterWebhookEvent<any>) {
     const gitAppName = process.env.GITHUB_APP_NAME || '';
     const gitAppEmail = process.env.GITHUB_APP_EMAIL || '';
 
@@ -43,7 +43,7 @@ export function getDefaultConfig(context: WebhookEvent<any>) {
 }
 
 // Helper function to get the installation token
-export const getInstallationToken = async (context: WebhookEvent<any>) => {
+export const getInstallationToken = async (context: EmitterWebhookEvent<any>) => {
     return context.payload.installation.id;
 }
 
@@ -73,6 +73,7 @@ export const configureGit = async (git: SimpleGit, gitAppName: string, gitAppEma
     }
     await git.addConfig("user.name", gitAppName, false, 'local');
     await git.addConfig("user.email", gitAppEmail, false, 'local');
+    
     // Set committer info explicitly
     await git.addConfig("committer.name", gitAppName, false, 'local');
     await git.addConfig("committer.email", gitAppEmail, false, 'local');

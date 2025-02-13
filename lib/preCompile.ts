@@ -1,12 +1,11 @@
 import fs from 'fs';
-import path from 'path';
 import simpleGit from 'simple-git';
 import { App } from "@octokit/app";
 import { getDefaultConfig, getInstallationToken, configureGit, deleteFolderRecursiveSync, clearTempStorage } from "./helpers";
-import { WebhookEvent } from "@octokit/webhooks";
+import { EmitterWebhookEvent  } from "@octokit/webhooks";
 
 
-export async function startPreCompile(octokit: App, context: WebhookEvent<any>) {
+export async function startPreCompile(octokit: App, context: EmitterWebhookEvent <any>) {
     console.log('Pre-compile started');
     const { gitAppName, gitAppEmail, repoOwner, repoName, repoUrl, clonedRepoFolder, cloneTargetDirectory, tempStorageDirectory, datasetRepoUrl, datasetFolder } = getDefaultConfig(context);
 
