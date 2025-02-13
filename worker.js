@@ -1,6 +1,6 @@
 import { App } from "@octokit/app";
 import { verifyWebhookSignature } from "./lib/verify.js";
-import { startMainCompile } from "./lib/preCompile.ts";
+import { startMainCompile } from "./lib/mainCompile.ts";
 import { startPreCompile } from "./lib/preCompile.ts";
 
 
